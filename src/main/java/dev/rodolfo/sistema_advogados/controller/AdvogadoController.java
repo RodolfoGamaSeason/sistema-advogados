@@ -67,6 +67,8 @@ public class AdvogadoController {
         Advogado advogado = (Advogado) auth.getPrincipal();
         String token = tokenBean.gerarToken(advogado);
 
+        System.out.println(advogadoRepository.findByOAB(viewModel.getOAB()));
+
         return ResponseEntity.ok(new LoginResponse(token));
     }
 }

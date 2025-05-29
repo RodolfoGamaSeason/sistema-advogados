@@ -1,13 +1,9 @@
 package dev.rodolfo.sistema_advogados.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Table(name = "processos")
 public class Processo {
@@ -24,8 +20,15 @@ public class Processo {
     private String juizResponsavel;
 
     @Column(nullable = false)
-    private String idAdvogado;
+    private Long idAdvogado;
 
     @Column(nullable = false)
     private String descricao;
+
+    public Processo(String codProcesso, String areaDireito, String juizResponsavel, String descricao) {
+        this.codProcesso = codProcesso;
+        this.areaDireito = areaDireito;
+        this.juizResponsavel = juizResponsavel;
+        this.descricao = descricao;
+    }
 }

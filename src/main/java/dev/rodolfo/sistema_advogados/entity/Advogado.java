@@ -49,9 +49,9 @@ public class Advogado implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (this.role == AdvogadoRoleEnum.ADMIN) {
-            return List.of(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("USER"));
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
         } else {
-            return List.of(new SimpleGrantedAuthority("USER"));
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
         }
     }
 
@@ -62,7 +62,7 @@ public class Advogado implements UserDetails {
 
     @Override
     public String getUsername() {
-        return nome + "#" + OAB;
+        return username;
     }
 
     @Override
