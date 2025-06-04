@@ -2,8 +2,13 @@ package dev.rodolfo.sistema_advogados.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "processos")
 public class Processo {
@@ -20,10 +25,10 @@ public class Processo {
     private String juizResponsavel;
 
     @Column(nullable = false)
-    private Long idAdvogado;
-
-    @Column(nullable = false)
     private String descricao;
+
+    @ManyToMany(mappedBy = "processos")
+    private Set<Advogado> advogados = new HashSet<>();
 
     public Processo(String codProcesso, String areaDireito, String juizResponsavel, String descricao) {
         this.codProcesso = codProcesso;

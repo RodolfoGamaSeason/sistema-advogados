@@ -1,4 +1,4 @@
-package dev.rodolfo.sistema_advogados.bean;
+package dev.rodolfo.sistema_advogados.service;
 
 import dev.rodolfo.sistema_advogados.repository.AdvogadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthBean implements UserDetailsService {
+public class AuthService implements UserDetailsService {
     @Autowired
     private AdvogadoRepository repository;
 

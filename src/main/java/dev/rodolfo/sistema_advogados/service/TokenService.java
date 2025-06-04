@@ -1,4 +1,4 @@
-package dev.rodolfo.sistema_advogados.bean;
+package dev.rodolfo.sistema_advogados.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 @Service
-public class TokenBean {
+public class TokenService {
     private String secret = "paoassadocarrojubileunemeu";
 
     public String gerarToken(Advogado advogado) {
@@ -30,7 +30,7 @@ public class TokenBean {
         }
     }
 
-    public String validadeToken(String token) {
+    public String validaToken(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.require(algorithm)

@@ -10,7 +10,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -37,6 +39,14 @@ public class Advogado implements UserDetails {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private AdvogadoRoleEnum role;
+
+    @ManyToMany
+    @JoinTable(
+            name = "advogado_processo",
+            joinColumns = @JoinColumn(name = "advogado_id"),
+            inverseJoinColumns = @JoinColumn(name = "processo_id")
+    )
+    private Set<Processo> processos = new HashSet<>();
 
     public Advogado(String nome, String username, String OAB, String senha, AdvogadoRoleEnum role) {
         this.nome = nome;

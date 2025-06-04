@@ -1,14 +1,16 @@
 package dev.rodolfo.sistema_advogados.controller;
 
-import dev.rodolfo.sistema_advogados.bean.TokenBean;
+import dev.rodolfo.sistema_advogados.service.TokenService;
 import dev.rodolfo.sistema_advogados.entity.Advogado;
 import dev.rodolfo.sistema_advogados.repository.AdvogadoRepository;
 import dev.rodolfo.sistema_advogados.response.LoginResponse;
 import dev.rodolfo.sistema_advogados.viewModel.AdvogadoViewModel;
 import dev.rodolfo.sistema_advogados.viewModel.LoginViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,7 +32,7 @@ public class AdvogadoController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private TokenBean tokenBean;
+    private TokenService tokenService;
 
     @PostMapping("/registrar")
     public ResponseEntity register(
@@ -61,14 +63,17 @@ public class AdvogadoController {
     public ResponseEntity login(
             @RequestBody LoginViewModel viewModel
     ) {
-        UsernamePasswordAuthenticationToken OABSenha = new UsernamePasswordAuthenticationToken(viewModel.getOAB(), viewModel.getSenha());
-        Authentication auth = this.authenticationManager.authenticate(OABSenha);
+        try {
+            UsernamePasswordAuthenticationToken OABSenha =
+                    new UsernamePasswordAuthenticationToken(viewModel.getOAB(), viewModel.getSenha());
+            Authentication auth = this.authenticationManager.authenticate(OABSenha);
 
-        Advogado advogado = (Advogado) auth.getPrincipal();
-        String token = tokenBean.gerarToken(advogado);
+            Advogado advogado = (Advogado) auth.getPrincipal();
+            String token = tokenService.gerarToken(advogado);
 
-        System.out.println(advogadoRepository.findByOAB(viewModel.getOAB()));
-
-        return ResponseEntity.ok(new LoginResponse(token));
+            return ResponseEntity.ok(new LoginResponse(token));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("OAB ou senha inválidos");
+        }
     }
 }

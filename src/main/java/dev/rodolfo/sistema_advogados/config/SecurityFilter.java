@@ -1,6 +1,6 @@
 package dev.rodolfo.sistema_advogados.config;
 
-import dev.rodolfo.sistema_advogados.bean.TokenBean;
+import dev.rodolfo.sistema_advogados.service.TokenService;
 import dev.rodolfo.sistema_advogados.repository.AdvogadoRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,7 +19,7 @@ import java.io.IOException;
 public class SecurityFilter extends OncePerRequestFilter {
 
     @Autowired
-    private TokenBean tokenBean;
+    private TokenService tokenService;
 
     @Autowired
     private AdvogadoRepository advogadoRepository;
@@ -39,11 +39,16 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = this.recoverToken(request);
 
         if (token != null) {
-            var OAB = tokenBean.validadeToken(token);
-            UserDetails userDetails = advogadoRepository.findByOAB(OAB);
+            var username = tokenService.validaToken(token);
 
-            var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (username != null && !username.isEmpty()) {
+                UserDetails userDetails = advogadoRepository.findByUsername(username);
+
+                if (userDetails != null) {
+                    var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            }
         }
 
         filterChain.doFilter(request, response);
