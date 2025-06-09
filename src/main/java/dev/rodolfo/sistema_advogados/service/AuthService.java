@@ -1,5 +1,6 @@
 package dev.rodolfo.sistema_advogados.service;
 
+import dev.rodolfo.sistema_advogados.entity.Advogado;
 import dev.rodolfo.sistema_advogados.repository.AdvogadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +15,11 @@ public class AuthService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String OAB) throws UsernameNotFoundException {
-        return repository.findByOAB(OAB);
+        Advogado advogado = repository.findByOAB(OAB);
+
+        if (advogado == null) {
+            throw new UsernameNotFoundException("OAB não encontrada: " + OAB);
+        }
+        return advogado;
     }
 }

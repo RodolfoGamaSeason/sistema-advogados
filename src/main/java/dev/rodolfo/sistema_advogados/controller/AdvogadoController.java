@@ -1,5 +1,6 @@
 package dev.rodolfo.sistema_advogados.controller;
 
+import dev.rodolfo.sistema_advogados.service.AdvogadoService;
 import dev.rodolfo.sistema_advogados.service.TokenService;
 import dev.rodolfo.sistema_advogados.entity.Advogado;
 import dev.rodolfo.sistema_advogados.repository.AdvogadoRepository;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,48 +34,23 @@ public class AdvogadoController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private TokenService tokenService;
+    private AdvogadoService advogadoService;
 
     @PostMapping("/registrar")
     public ResponseEntity register(
             @RequestBody AdvogadoViewModel viewModel
     ) {
-        if (viewModel.getSenha() == null || viewModel.getSenha().isBlank()) {
-            return ResponseEntity.badRequest().body("Senha não pode ser vazia.");
-        }
+        advogadoService.cadastraAdvogado(viewModel);
 
-        if (advogadoRepository.findByOAB(viewModel.getOAB()) != null) {
-            return ResponseEntity.badRequest().body("OAB já cadastrada.");
-        }
-
-        String senhaEncriptada = new BCryptPasswordEncoder().encode(viewModel.getSenha());
-        String username = viewModel.getNome() + "#" + viewModel.getOAB();
-        String usernameFormatado = Normalizer.normalize(username.trim(), Normalizer.Form.NFD)
-                .replaceAll("[^\\p{ASCII}]", "")
-                .replaceAll("\\s+", "")
-                .toLowerCase();
-        Advogado novoAdvogado = new Advogado(viewModel.getNome(), usernameFormatado, viewModel.getOAB(), senhaEncriptada, viewModel.getRole());
-
-        advogadoRepository.save(novoAdvogado);
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("Advogado cadastrado com sucesso!");
     }
 
     @PostMapping("/login")
     public ResponseEntity login(
             @RequestBody LoginViewModel viewModel
     ) {
-        try {
-            UsernamePasswordAuthenticationToken OABSenha =
-                    new UsernamePasswordAuthenticationToken(viewModel.getOAB(), viewModel.getSenha());
-            Authentication auth = this.authenticationManager.authenticate(OABSenha);
+        String token = advogadoService.loginAdvogado(viewModel);
 
-            Advogado advogado = (Advogado) auth.getPrincipal();
-            String token = tokenService.gerarToken(advogado);
-
-            return ResponseEntity.ok(new LoginResponse(token));
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("OAB ou senha inválidos");
-        }
+        return ResponseEntity.ok(new LoginResponse(token));
     }
 }
